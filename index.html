@@ -1,0 +1,186 @@
+<html>
+<head>
+  <title>Album</title>
+  <meta name="viewport" 
+        content="initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+  <script src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.css" />
+  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap-responsive.css" />
+  <script src="http://masonry.desandro.com/jquery.masonry.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </a>
+          <center><a class="brand album-brand" href="index.html">Album</a></center>
+      </div><!--/.navbar-inner-->
+    </div><!--/.navbar-->
+  </div><!--/.container-->
+  <span class="nav-skip"></span>
+
+  <div data-role="content">
+    <div id="user-info"></div>
+    <div id="login">
+      <button onClick="loginUser();" class="btn btn-success" data-inline="true">Login</button>
+    </div>
+    <div id="logout">
+      <button  onClick="FB.logout();" class="btn btn-danger" data-inline="true">Logout</button>
+    </div>
+    <button onclick="getUserPhotos();" class="btn btn-primary" data-inline="true">Get photos</button><br>
+    <div id="fb-root"></div>
+    <div id="user-photos"></div>
+  </div>
+
+</div>
+  <script>
+    function loginUser() {    
+      FB.login(function(response) { }, {scope:'user_photos'});     
+    }
+  </script>
+  <script>
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '454708447877559', // App ID
+        channelUrl : '//WWW.degree7.com/apps/Ajay/fb_channel.html', // Channel File
+        status     : true, // check login status
+        cookie     : true, // enable cookies to allow the server to access the session
+        xfbml      : true  // parse XFBML
+      });
+
+      FB.Event.subscribe('auth.statusChange', handleResponseChange);
+    };
+
+    // Load the SDK Asynchronously
+    (function(d){
+       var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+       if (d.getElementById(id)) {return;}
+       js = d.createElement('script'); js.id = id; js.async = true;
+       js.src = "//connect.facebook.net/en_US/all.js";
+       ref.parentNode.insertBefore(js, ref);
+     }(document));
+  </script>
+ <script>
+  function handleResponseChange(response) {
+      document.body.className = response.authResponse ? 'connected' : 'not_connected';
+      if (response.authResponse) {
+        console.log(response);
+
+        updateUserInfo(response);
+      }
+    }
+ </script>
+  </script>
+ <script>
+   function updateUserInfo(response) {
+     FB.api('/me', function(response) {
+       document.getElementById('user-info').innerHTML = 'Hello, ' + response.name;
+     });
+   }
+ </script>
+ <script>
+ function getUserPhotos() {
+   FB.api('/me/photos', function(response) {
+      document.getElementById('user-photos').innerHTML = "";
+     console.log('Got photos: ', response);
+
+     if (!response.error) {
+       var markup = '';
+
+       var photos = response.data;
+
+       for (var i=0; i < photos.length; i++) {
+         var photo = photos[i];
+         var rand = Math.round(Math.random()*2);
+         var label = '<h5 class="photo-label">'+photo.name+'</h5>';
+         if (rand === 2) {
+           var cls = 'photo-large';
+           label = (photo.name != (undefined && 'undefined')) ? label : '';
+         } else if (rand === 1) {
+           var cls = 'photo-medium';
+           label = (photo.name != (undefined && 'undefined')) ? label : '';
+         } else {
+           var cls = 'photo-small';
+           label = '';
+         }
+         $('#user-photos').append('<div class="item '+cls+'">\
+            <img src="' + photo.source + '" style="width:100%">'+label+'\
+          </div>');
+       }
+        var $container = $('#user-photos');
+
+        $container.imagesLoaded( function(){
+          $container.masonry({
+            itemSelector : '.item',
+            columnWidth: 100,
+            isAnimated: true
+          });
+        });
+     }
+   });
+ }
+ </script>
+</body>
+<style>
+  body.connected #login { display: none; }
+  body.connected #logout { display: inline; }
+  body.not_connected #login { display: inline; }
+  body.not_connected #logout { display: none; }
+
+  #user-info { display: inline; }
+
+  .item { float:left; display: block; }
+  .photo-large {
+    width: 300px;
+  }
+  .photo-medium {
+    width: 200px;
+  }
+  .photo-small {
+    width: 100px;
+  }
+
+  h5 .photo-label {
+    display: block;
+    white-space: nowrap;
+    width: 100%;                   
+    overflow: hidden;
+    text-overflow:    ellipsis;
+  }
+
+.album-brand {
+  float: none !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.nav-skip {
+  display: block;
+  height: 45px;
+  width: 100px;
+}
+
+#album-container {
+  display: block;
+  width:900px;
+  margin: auto;
+  margin-top: 20px;
+  height:450px;
+}
+#album-container .turn-page{
+  width:450px;
+  height:450px;
+  
+  background-image:-webkit-linear-gradient(left,  #E4E4E4 0%, #F7F7F7 100%);
+  background-image:-webkit-gradient(linear, left top, right top, color-stop(0, #E4E4E4), color-stop(1, #F7F7F7));
+  background-image:-moz-linear-gradient(left, #E4E4E4 0%, #F7F7F7 100%);
+  background-image:-o-linear-gradient(left, #E4E4E4 0%, #F7F7F7 100%);
+  background-image:-ms-linear-gradient(left, #E4E4E4 0%, #F7F7F7 100%);
+}
+</style>
+</html>
